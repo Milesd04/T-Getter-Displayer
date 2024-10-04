@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ line }} Line Train Updates</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>{{ line }} Line Train Updates</h1>
+    <div id="train-updates">
+        <!-- Train data will be injected here -->
+    </div>
+    <button onclick="window.history.back();">Back</button>
+
+    <script>
+        async function fetchTrainUpdates(line) {
+            const response = await fetch(`/mbta/${line}`);
+            const data = await response.json();
+            const updatesDiv = document.getElementById('train-updates');
+            updatesDiv.innerHTML = '';
+
+            // Assuming data is an array of train updates
+            data.forEach(train => {
+                const departureTime = new Date(train.departure_time);
+                const formattedTime = departureTime.toLocaleString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+
+                updatesDiv.innerHTML += `<p>${train.station} - Next Train Departure: ${formattedTime} (Route: ${train.route})</p>`;
+            });
+        }
+
+        // Get the line from the URL and fetch updates on page load
+        const urlParams = new URLSearchParams(window.location.search);
+        const line = urlParams.get('line');
+
+        // If the line is "Green", fetch updates for all Green Line branches
+        if (line === 'Green') {
+            fetchTrainUpdates('Green'); // This will call the modified endpoint
+        } else {
+            fetchTrainUpdates(line);
+        }
+    </script>
+</body>
+</html>

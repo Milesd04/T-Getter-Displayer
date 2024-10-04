@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTA Metro Train Updates</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .line-container {
+            margin: 10px;
+            padding: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        .red { background-color: #C8102E; }
+        .orange { background-color: #F68B20; }
+        .blue { background-color: #003DA5; }
+        .green { background-color: #009639; }
+    </style>
+</head>
+<body>
+    <h1>MBTA Metro Train Updates</h1>
+    <div id="lines">
+        <div class="line-container red" onclick="fetchTrainUpdates('Red')">Red Line</div>
+        <div class="line-container orange" onclick="fetchTrainUpdates('Orange')">Orange Line</div>
+        <div class="line-container blue" onclick="fetchTrainUpdates('Blue')">Blue Line</div>
+        <div class="line-container green" onclick="fetchTrainUpdates('Green')">Green Line</div>
+    </div>
+
+    <div id="train-updates">
+        <!-- Train data will be injected here -->
+    </div>
+
+    <script>
+        async function fetchTrainUpdates(line) {
+            const response = await fetch(`/mbta/${line}`);
+            const data = await response.json();
+            const updatesDiv = document.getElementById('train-updates');
+            updatesDiv.innerHTML = '';
+
+            data.forEach(train => {
+                const departureTime = new Date(train.departure_time);
+                const formattedTime = departureTime.toLocaleString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+
+                updatesDiv.innerHTML += `<p>${train.station} - Next Train Departure: ${formattedTime}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
